@@ -4,6 +4,8 @@ import Button from "./components/atoms/Button";
 import ButtonGroup from "./components/molecules/ButtonGroup";
 import "./App.css";
 import skills from "./skills";
+import IconGroup from "./components/molecules/IconGroup";
+import Icon from "./components/atoms/Icon";
 
 const quasImage =
   "https://c-3sux78kvnkay76x24j7a1v9r0cvge9qx2eiruajlx78utzx2etkz.g00.gamepedia.com/g00/3_c-3juzg8.mgskvkjog.ius_/c-3SUXKVNKAY76x24nzzvyx3ax2fx2fj7a1v9r0cvge9q.iruajlx78utz.tkzx2fjuzg8_mgskvkjogx2fhx2fhgx2fSgmay_Gvkd_Wagy_oiut.vtmx3fbkx78youtx3dj1j06i3472j789886i0ihgk0199h6984_$/$/$/$/$?i10c.ua=1&i10c.dv=21";
@@ -25,7 +27,7 @@ class App extends Component {
     this.castButton = React.createRef();
     this.state = {
       combination: 0,
-      keyCombination: "",
+      keyCombination: [],
       castedSkill: ""
     };
   }
@@ -33,27 +35,37 @@ class App extends Component {
   componentWillReceiveProps({ keydown }) {
     const { combination, keyCombination } = this.state;
     if (keydown.event) {
+      let nextKeyCombination = [...keyCombination, ...keydown.event.key];
+      let nextCombination = combination + keydown.event.which;
+
+      if (keyCombination.length === 3) {
+        nextKeyCombination = [keydown.event.key];
+        nextCombination = keydown.event.which;
+      }
+
       if (keydown.event.key === "q") {
         this.quasButton.current.focus();
-        this.setState({
-          combination: combination + keydown.event.which,
-          keyCombination: keyCombination + keydown.event.key
-        });
       }
       if (keydown.event.key === "w") {
         this.wexButton.current.focus();
-        this.setState({
-          combination: combination + keydown.event.which
-        });
       }
       if (keydown.event.key === "e") {
         this.exortButton.current.focus();
+      }
+
+      if (KEYS.includes(keydown.event.key)) {
         this.setState({
-          combination: combination + keydown.event.which
+          combination: nextCombination,
+          keyCombination: [...nextKeyCombination]
         });
       }
+
       if (keydown.event.key === "r") {
         this.castButton.current.focus();
+        let audio = new Audio(
+          "https://d1u5p3l4wpay3k.cloudfront.net/dota2_gamepedia/c/c7/Invoke.mp3"
+        );
+        audio.play();
         this.castSkill(combination, keyCombination);
       }
     }
@@ -65,7 +77,7 @@ class App extends Component {
     switch (combination) {
       case skills.coldsnap.code:
         skill =
-          keyCombination === skills.coldsnap.keys
+          keyCombination.join("") === skills.coldsnap.keys
             ? skills.coldsnap.name
             : skills.alacrity.name;
         break;
@@ -112,13 +124,13 @@ class App extends Component {
 
     this.setState({
       combination: 0,
-      keyCombination: "",
+      keyCombination: [],
       castedSkill: skill
     });
   };
 
   render() {
-    const { castedSkill } = this.state;
+    const { castedSkill, keyCombination } = this.state;
 
     return (
       <div className="App">
@@ -130,6 +142,21 @@ class App extends Component {
           />
           <p>Invoker's game.</p>
           <p>{castedSkill}</p>
+          <IconGroup>
+            {keyCombination.map((e, index) => {
+              let image = "";
+              if (e === "q") {
+                image = quasImage;
+              }
+              if (e === "w") {
+                image = wexImage;
+              }
+              if (e === "e") {
+                image = exortImage;
+              }
+              return <Icon backgroundImage={image} key={index} />;
+            })}
+          </IconGroup>
           <ButtonGroup>
             <Button backgroundImage={quasImage} reference={this.quasButton} />
             <Button backgroundImage={wexImage} reference={this.wexButton} />
