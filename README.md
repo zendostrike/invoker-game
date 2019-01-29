@@ -1,4 +1,6 @@
-<img src="http://i.imgur.com/8VmKjHO.png" align="center" />
+<p align='center'>
+<img src="http://i.imgur.com/8VmKjHO.png" align="center" alt="invoker game react" width="480px" />
+</p>
 
 ## Invoker's game
 
