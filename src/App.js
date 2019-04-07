@@ -1,22 +1,28 @@
 import React, { Component } from "react";
 import keydown from "react-keydown";
-import Button from "./components/atoms/Button";
+import ReagentButton from "./components/atoms/ReagentButton";
 import ButtonGroup from "./components/molecules/ButtonGroup";
 import "./App.css";
 import skills from "./skills";
 import IconGroup from "./components/molecules/IconGroup";
+import GameControls from "./components/molecules/GameControls";
 import Icon from "./components/atoms/Icon";
-
-const quasImage =
-  "https://c-3sux78kvnkay76x24j7a1v9r0cvge9qx2eiruajlx78utzx2etkz.g00.gamepedia.com/g00/3_c-3juzg8.mgskvkjog.ius_/c-3SUXKVNKAY76x24nzzvyx3ax2fx2fj7a1v9r0cvge9q.iruajlx78utz.tkzx2fjuzg8_mgskvkjogx2fhx2fhgx2fSgmay_Gvkd_Wagy_oiut.vtmx3fbkx78youtx3dj1j06i3472j789886i0ihgk0199h6984_$/$/$/$/$?i10c.ua=1&i10c.dv=21";
-const wexImage =
-  "https://c-3sux78kvnkay76x24j7a1v9r0cvge9qx2eiruajlx78utzx2etkz.g00.gamepedia.com/g00/3_c-3juzg8.mgskvkjog.ius_/c-3SUXKVNKAY76x24nzzvyx3ax2fx2fj7a1v9r0cvge9q.iruajlx78utz.tkzx2fjuzg8_mgskvkjogx2f9x2f98x2fSgmay_Gvkd_Ckd_oiut.vtmx3fbkx78youtx3dh34j3g0ki6705j972j39ig2k09609h04_$/$/$/$/$?i10c.ua=1&i10c.dv=21";
-const exortImage =
-  "https://c-3sux78kvnkay76x24j7a1v9r0cvge9qx2eiruajlx78utzx2etkz.g00.gamepedia.com/g00/3_c-3juzg8.mgskvkjog.ius_/c-3SUXKVNKAY76x24nzzvyx3ax2fx2fj7a1v9r0cvge9q.iruajlx78utz.tkzx2fjuzg8_mgskvkjogx2f8x2f87x2fSgmay_Gvkd_Kdux78z_oiut.vtmx3fbkx78youtx3d63413g6jg5815k3162j4070l6jh19248_$/$/$/$/$?i10c.ua=1&i10c.dv=21";
-const castImage =
-  "https://c-3sux78kvnkay76x24j7a1v9r0cvge9qx2eiruajlx78utzx2etkz.g00.gamepedia.com/g00/3_c-3juzg8.mgskvkjog.ius_/c-3SUXKVNKAY76x24nzzvyx3ax2fx2fj7a1v9r0cvge9q.iruajlx78utz.tkzx2fjuzg8_mgskvkjogx2fjx2fj0x2fOtbuqk_oiut.vtmx3fbkx78youtx3dhjj93187k792g96ig7531j1ii21l76hl_$/$/$/$/$?i10c.ua=1&i10c.dv=21";
+import quasIcon from "./assets/quas_icon.png";
+import wexIcon from "./assets/wex_icon.png";
+import exortIcon from "./assets/exort_icon.png";
+import invokeIcon from "./assets/invoke_icon.png";
 
 const KEYS = ["q", "w", "e", "r"];
+const GAME_DURATION = 10;
+const GAME_STATE = { READY: "READY", STARTED: "STARTED", FINISHED: "FINISHED" };
+
+const initialState = {
+  combination: 0,
+  keyCombination: [],
+  castedSkill: "",
+  currentDuration: GAME_DURATION,
+  gameState: GAME_STATE.READY
+};
 
 class App extends Component {
   constructor(props) {
@@ -25,11 +31,8 @@ class App extends Component {
     this.wexButton = React.createRef();
     this.exortButton = React.createRef();
     this.castButton = React.createRef();
-    this.state = {
-      combination: 0,
-      keyCombination: [],
-      castedSkill: ""
-    };
+    this.myInterval = null;
+    this.state = initialState;
   }
 
   componentWillReceiveProps({ keydown }) {
@@ -63,7 +66,7 @@ class App extends Component {
       if (keydown.event.key === "r") {
         this.castButton.current.focus();
         let audio = new Audio(
-          "https://d1u5p3l4wpay3k.cloudfront.net/dota2_gamepedia/c/c7/Invoke.mp3"
+          "https://gamepedia.cursecdn.com/dota2_gamepedia/c/c7/Invoke.mp3"
         );
         audio.play();
         this.castSkill(combination, keyCombination);
@@ -129,11 +132,45 @@ class App extends Component {
     });
   };
 
+  startGame = () => {
+    if (this.state.gameState === GAME_STATE.READY) {
+      this.myInterval = setInterval(() => {
+        this.setState(prevState => ({
+          currentDuration: prevState.currentDuration - 0.01,
+          gameState: GAME_STATE.STARTED
+        }));
+      }, 1);
+    }
+  };
+
+  resetGame = () => {
+    this.setState(initialState);
+  };
+
   render() {
-    const { castedSkill, keyCombination } = this.state;
+    const {
+      castedSkill,
+      keyCombination,
+      currentDuration,
+      gameState
+    } = this.state;
+
+    const progressBarValue = (currentDuration / GAME_DURATION) * 100;
+    const startButtonTitle =
+      gameState === GAME_STATE.STARTED ? "Game started" : "Start";
+
+    if (currentDuration <= 0) {
+      clearInterval(this.myInterval);
+      this.resetGame();
+    }
 
     return (
       <div className="App">
+        <GameControls
+          startButtonTitle={startButtonTitle}
+          onStartGamePressed={this.startGame}
+          progressBarValue={progressBarValue}
+        />
         <header className="App-header">
           <img
             src="https://pngimage.net/wp-content/uploads/2018/05/dota-2-invoker-png-3.png"
@@ -146,22 +183,34 @@ class App extends Component {
             {keyCombination.map((e, index) => {
               let image = "";
               if (e === "q") {
-                image = quasImage;
+                image = quasIcon;
               }
               if (e === "w") {
-                image = wexImage;
+                image = wexIcon;
               }
               if (e === "e") {
-                image = exortImage;
+                image = exortIcon;
               }
               return <Icon backgroundImage={image} key={index} />;
             })}
           </IconGroup>
           <ButtonGroup>
-            <Button backgroundImage={quasImage} reference={this.quasButton} />
-            <Button backgroundImage={wexImage} reference={this.wexButton} />
-            <Button backgroundImage={exortImage} reference={this.exortButton} />
-            <Button backgroundImage={castImage} reference={this.castButton} />
+            <ReagentButton
+              backgroundImage={quasIcon}
+              reference={this.quasButton}
+            />
+            <ReagentButton
+              backgroundImage={wexIcon}
+              reference={this.wexButton}
+            />
+            <ReagentButton
+              backgroundImage={exortIcon}
+              reference={this.exortButton}
+            />
+            <ReagentButton
+              backgroundImage={invokeIcon}
+              reference={this.castButton}
+            />
           </ButtonGroup>
         </header>
       </div>
