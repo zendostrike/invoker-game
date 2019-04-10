@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import keydown from "react-keydown";
+import Particles from "react-particles-js";
 import ReagentButton from "./components/atoms/ReagentButton";
 import ButtonGroup from "./components/molecules/ButtonGroup";
 import "./App.css";
@@ -13,15 +14,22 @@ import exortIcon from "./assets/exort_icon.png";
 import invokeIcon from "./assets/invoke_icon.png";
 
 const KEYS = ["q", "w", "e", "r"];
-const GAME_DURATION = 10;
+const GAME_DURATION = 30;
 const GAME_STATE = { READY: "READY", STARTED: "STARTED", FINISHED: "FINISHED" };
 
+const randomProperty = function(obj) {
+  var keys = Object.keys(obj);
+  return obj[keys[(keys.length * Math.random()) << 0]];
+};
+
 const initialState = {
+  score: 0,
   combination: 0,
   keyCombination: [],
   castedSkill: "",
   currentDuration: GAME_DURATION,
-  gameState: GAME_STATE.READY
+  gameState: GAME_STATE.READY,
+  randomSpell: randomProperty(skills)
 };
 
 class App extends Component {
@@ -31,7 +39,8 @@ class App extends Component {
     this.wexButton = React.createRef();
     this.exortButton = React.createRef();
     this.castButton = React.createRef();
-    this.myInterval = null;
+    this.gameDurationInterval = null;
+    this.randomSpellInterval = null;
     this.state = initialState;
   }
 
@@ -125,6 +134,8 @@ class App extends Component {
         break;
     }
 
+    this.assertSpell(skill);
+
     this.setState({
       combination: 0,
       keyCombination: [],
@@ -134,7 +145,12 @@ class App extends Component {
 
   startGame = () => {
     if (this.state.gameState === GAME_STATE.READY) {
-      this.myInterval = setInterval(() => {
+      this.randomSpellInterval = setInterval(() => {
+        this.setState({
+          randomSpell: randomProperty(skills)
+        });
+      }, 2000);
+      this.gameDurationInterval = setInterval(() => {
         this.setState(prevState => ({
           currentDuration: prevState.currentDuration - 0.01,
           gameState: GAME_STATE.STARTED
@@ -147,31 +163,74 @@ class App extends Component {
     this.setState(initialState);
   };
 
+  assertSpell = spellName => {
+    if (this.state.randomSpell.name === spellName) {
+      this.setState(prevState => ({
+        score: prevState.score + 1
+      }));
+      this.celebrate();
+    }
+  };
+
+  celebrate = () => {
+    let audio = new Audio(
+      "https://gamepedia.cursecdn.com/dota2_gamepedia/c/cd/Invo_ability_invoke_14.mp3"
+    );
+    audio.play();
+  };
+
   render() {
     const {
       castedSkill,
       keyCombination,
       currentDuration,
-      gameState
+      gameState,
+      randomSpell,
+      score
     } = this.state;
 
     const progressBarValue = (currentDuration / GAME_DURATION) * 100;
-    const startButtonTitle =
-      gameState === GAME_STATE.STARTED ? "Game started" : "Start";
+    const gameStarted = gameState === GAME_STATE.STARTED;
 
     if (currentDuration <= 0) {
-      clearInterval(this.myInterval);
+      clearInterval(this.gameDurationInterval);
+      clearInterval(this.randomSpellInterval);
       this.resetGame();
     }
 
     return (
       <div className="App">
         <GameControls
-          startButtonTitle={startButtonTitle}
+          startButtonTitle={gameStarted ? "Game started" : "Start"}
           onStartGamePressed={this.startGame}
           progressBarValue={progressBarValue}
         />
         <header className="App-header">
+          <Particles
+            params={{
+              particles: {
+                number: {
+                  value: 100,
+                  density: {
+                    enable: false
+                  }
+                },
+                size: {
+                  value: 10,
+                  random: true
+                },
+                move: {
+                  direction: "bottom",
+                  out_mode: "out"
+                },
+                line_linked: {
+                  enable: false
+                }
+              }
+            }}
+          />
+          <p>SCORE: {score}</p>
+          <h2>{gameStarted && randomSpell.name}</h2>
           <img
             src="https://pngimage.net/wp-content/uploads/2018/05/dota-2-invoker-png-3.png"
             className="App-logo"
