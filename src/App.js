@@ -199,35 +199,46 @@ class App extends Component {
     }
 
     return (
-      <div className="App">
-        <GameControls
-          startButtonTitle={gameStarted ? "Game started" : "Start"}
-          onStartGamePressed={this.startGame}
-          progressBarValue={progressBarValue}
-        />
-        <header className="App-header">
-          <Particles
-            params={{
-              particles: {
-                number: {
-                  value: 100,
-                  density: {
-                    enable: false
-                  }
-                },
-                size: {
-                  value: 10,
-                  random: true
-                },
-                move: {
-                  direction: "bottom",
-                  out_mode: "out"
-                },
-                line_linked: {
+      <div
+        style={{
+          maxWidth: "320px",
+          maxHeight: "600px",
+          background: "#000",
+          display: "flex"
+        }}
+      >
+        <Particles
+          height="600px"
+          style={{
+            minWidth: "320px"
+          }}
+          params={{
+            particles: {
+              number: {
+                value: 100,
+                density: {
                   enable: false
                 }
+              },
+              size: {
+                value: 10,
+                random: true
+              },
+              move: {
+                direction: "bottom",
+                out_mode: "out"
+              },
+              line_linked: {
+                enable: false
               }
-            }}
+            }
+          }}
+        />
+        <div style={{ position: "absolute", minWidth: "320px" }}>
+          <GameControls
+            startButtonTitle={gameStarted ? "Game started" : "Start"}
+            onStartGamePressed={this.startGame}
+            progressBarValue={progressBarValue}
           />
           <p>SCORE: {score}</p>
           <h2>{gameStarted && randomSpell.name}</h2>
@@ -271,7 +282,7 @@ class App extends Component {
               reference={this.castButton}
             />
           </ButtonGroup>
-        </header>
+        </div>
       </div>
     );
   }
