@@ -6,8 +6,8 @@ const StyledIcon = styled.div`
   border-radius: 30px;
   padding: 0px;
   margin: 5px;
-  width: 32px;
-  height: 32px;
+  width: 25px;
+  height: 25px;
   background-repeat: no-repeat;
   background: ${props => `url(${props.backgroundImage})`};
   background-size: cover;

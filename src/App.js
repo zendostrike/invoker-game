@@ -3,7 +3,6 @@ import keydown from "react-keydown";
 import Particles from "react-particles-js";
 import ReagentButton from "./components/atoms/ReagentButton";
 import ButtonGroup from "./components/molecules/ButtonGroup";
-import "./App.css";
 import skills from "./skills";
 import IconGroup from "./components/molecules/IconGroup";
 import GameControls from "./components/molecules/GameControls";
@@ -12,6 +11,14 @@ import quasIcon from "./assets/quas_icon.png";
 import wexIcon from "./assets/wex_icon.png";
 import exortIcon from "./assets/exort_icon.png";
 import invokeIcon from "./assets/invoke_icon.png";
+import {
+  Section,
+  AppContainer,
+  GameContainer,
+  Score,
+  RandomSpell,
+  CastedSpell
+} from "./styles";
 
 const KEYS = ["q", "w", "e", "r"];
 const GAME_DURATION = 30;
@@ -169,8 +176,28 @@ class App extends Component {
         score: prevState.score + 1
       }));
       this.celebrate();
+      this.changeSpell();
     }
   };
+
+  changeSpell = () => {
+    clearInterval(this.randomSpellInterval);
+    this.changeSpellInState(() => {
+      this.randomSpellInterval = setInterval(() => {
+        this.setState({
+          randomSpell: randomProperty(skills)
+        });
+      }, 2000);
+    });
+  };
+
+  changeSpellInState = callback =>
+    this.setState(
+      {
+        randomSpell: randomProperty(skills)
+      },
+      callback()
+    );
 
   celebrate = () => {
     let audio = new Audio(
@@ -199,19 +226,8 @@ class App extends Component {
     }
 
     return (
-      <div
-        style={{
-          maxWidth: "320px",
-          maxHeight: "600px",
-          background: "#000",
-          display: "flex"
-        }}
-      >
+      <AppContainer>
         <Particles
-          height="600px"
-          style={{
-            minWidth: "320px"
-          }}
           params={{
             particles: {
               number: {
@@ -221,7 +237,7 @@ class App extends Component {
                 }
               },
               size: {
-                value: 10,
+                value: 5,
                 random: true
               },
               move: {
@@ -234,56 +250,61 @@ class App extends Component {
             }
           }}
         />
-        <div style={{ position: "absolute", minWidth: "320px" }}>
+        <GameContainer>
           <GameControls
-            startButtonTitle={gameStarted ? "Game started" : "Start"}
+            startButtonTitle={gameStarted ? "GAME STARTED" : "START"}
             onStartGamePressed={this.startGame}
             progressBarValue={progressBarValue}
           />
-          <p>SCORE: {score}</p>
-          <h2>{gameStarted && randomSpell.name}</h2>
+          <Score>SCORE: {score}</Score>
+          <RandomSpell>{gameStarted && randomSpell.name}</RandomSpell>
           <img
             src="https://pngimage.net/wp-content/uploads/2018/05/dota-2-invoker-png-3.png"
-            className="App-logo"
+            style={{ height: "40vmin" }}
             alt="logo"
           />
-          <p>Invoker's game.</p>
-          <p>{castedSkill}</p>
-          <IconGroup>
-            {keyCombination.map((e, index) => {
-              let image = "";
-              if (e === "q") {
-                image = quasIcon;
-              }
-              if (e === "w") {
-                image = wexIcon;
-              }
-              if (e === "e") {
-                image = exortIcon;
-              }
-              return <Icon backgroundImage={image} key={index} />;
-            })}
-          </IconGroup>
-          <ButtonGroup>
-            <ReagentButton
-              backgroundImage={quasIcon}
-              reference={this.quasButton}
-            />
-            <ReagentButton
-              backgroundImage={wexIcon}
-              reference={this.wexButton}
-            />
-            <ReagentButton
-              backgroundImage={exortIcon}
-              reference={this.exortButton}
-            />
-            <ReagentButton
-              backgroundImage={invokeIcon}
-              reference={this.castButton}
-            />
-          </ButtonGroup>
-        </div>
-      </div>
+          <Section height={30}>
+            <CastedSpell>{castedSkill}</CastedSpell>
+          </Section>
+          <Section>
+            <IconGroup>
+              {keyCombination.map((e, index) => {
+                let image = "";
+                if (e === "q") {
+                  image = quasIcon;
+                }
+                if (e === "w") {
+                  image = wexIcon;
+                }
+                if (e === "e") {
+                  image = exortIcon;
+                }
+                return <Icon backgroundImage={image} key={index} />;
+              })}
+            </IconGroup>
+          </Section>
+          <Section>
+            <ButtonGroup>
+              <ReagentButton
+                backgroundImage={quasIcon}
+                reference={this.quasButton}
+              />
+              <ReagentButton
+                backgroundImage={wexIcon}
+                reference={this.wexButton}
+              />
+              <ReagentButton
+                backgroundImage={exortIcon}
+                reference={this.exortButton}
+              />
+              <ReagentButton
+                backgroundImage={invokeIcon}
+                reference={this.castButton}
+              />
+            </ButtonGroup>
+          </Section>
+        </GameContainer>
+      </AppContainer>
     );
   }
 }

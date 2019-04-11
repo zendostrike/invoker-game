@@ -3,10 +3,9 @@ import styled from "styled-components";
 
 const StyedButton = styled.button`
   border-style: none;
-  padding: 0px;
-  margin: 5px;
-  width: 72px;
-  height: 72px;
+  margin: 5px 0px;
+  width: 50px;
+  height: 50px;
   background-repeat: no-repeat;
   background: ${props => `url(${props.backgroundImage})`};
   background-size: cover;

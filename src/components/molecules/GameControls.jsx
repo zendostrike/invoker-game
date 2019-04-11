@@ -6,6 +6,7 @@ import Button from "../atoms/Button";
 
 const StyledContainer = styled.div`
   padding-top: 10px;
+  text-align: center;
 `;
 
 const GameControls = ({
@@ -18,9 +19,10 @@ const GameControls = ({
       <Button onClick={() => onStartGamePressed()}>{startButtonTitle}</Button>
       <Line
         percent={progressBarValue}
-        strokeWidth="1"
-        strokeColor="#5d3a9a"
-        trailColor="#FF5733"
+        strokeWidth="2"
+        trailWidth="2"
+        strokeColor="#0080FF"
+        trailColor="#F09B07"
       />
     </StyledContainer>
   );
