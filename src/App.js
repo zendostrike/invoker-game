@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import keydown from "react-keydown";
-import Particles from "react-particles-js";
 import ReagentButton from "./components/atoms/ReagentButton";
 import ButtonGroup from "./components/molecules/ButtonGroup";
 import skills from "./skills";
@@ -52,43 +51,43 @@ class App extends Component {
   }
 
   componentWillReceiveProps({ keydown }) {
-    const { combination, keyCombination } = this.state;
     if (keydown.event) {
-      let nextKeyCombination = [...keyCombination, ...keydown.event.key];
-      let nextCombination = combination + keydown.event.which;
-
-      if (keyCombination.length === 3) {
-        nextKeyCombination = [keydown.event.key];
-        nextCombination = keydown.event.which;
-      }
-
-      if (keydown.event.key === "q") {
-        this.quasButton.current.focus();
-      }
-      if (keydown.event.key === "w") {
-        this.wexButton.current.focus();
-      }
-      if (keydown.event.key === "e") {
-        this.exortButton.current.focus();
-      }
-
-      if (KEYS.includes(keydown.event.key)) {
-        this.setState({
-          combination: nextCombination,
-          keyCombination: [...nextKeyCombination]
-        });
-      }
-
-      if (keydown.event.key === "r") {
-        this.castButton.current.focus();
-        let audio = new Audio(
-          "https://gamepedia.cursecdn.com/dota2_gamepedia/c/c7/Invoke.mp3"
-        );
-        audio.play();
-        this.castSkill(combination, keyCombination);
-      }
+      this.handleKeyPress(keydown.event.key);
     }
   }
+
+  handleKeyPress = keyPressed => {
+    const { keyCombination } = this.state;
+
+    if (keyPressed === "r") {
+      this.castButton.current.focus();
+      let audio = new Audio(
+        "https://gamepedia.cursecdn.com/dota2_gamepedia/c/c7/Invoke.mp3"
+      );
+      audio.play();
+      this.castSkill(keyCombination);
+    }
+
+    if (keyCombination.length === 3) {
+      keyCombination.shift();
+    }
+
+    let nextKeyCombination = [...keyCombination, ...keyPressed];
+
+    if (keyPressed === "q") {
+      this.quasButton.current.focus();
+    }
+    if (keyPressed === "w") {
+      this.wexButton.current.focus();
+    }
+    if (keyPressed === "e") {
+      this.exortButton.current.focus();
+    }
+
+    if (KEYS.includes(keyPressed)) {
+      this.setState({ keyCombination: [...nextKeyCombination] });
+    }
+  };
 
   castSkill = (combination, keyCombination) => {
     let skill = "Cast something!";
@@ -227,29 +226,6 @@ class App extends Component {
 
     return (
       <AppContainer>
-        <Particles
-          params={{
-            particles: {
-              number: {
-                value: 100,
-                density: {
-                  enable: false
-                }
-              },
-              size: {
-                value: 5,
-                random: true
-              },
-              move: {
-                direction: "bottom",
-                out_mode: "out"
-              },
-              line_linked: {
-                enable: false
-              }
-            }
-          }}
-        />
         <GameContainer>
           <GameControls
             startButtonTitle={gameStarted ? "GAME STARTED" : "START"}
